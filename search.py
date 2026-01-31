@@ -87,7 +87,39 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # this initializes the stack and uses the LIFO to store the states for the dfs
+    stak = util.Stack()
+    # this is to keep track of states that have been visited
+    visi = set()
+    # to get the starting position of pacman
+    start_stat = problem.getStartState()
+    # this is to push the start state onto the stack with an empty path and every stack entry is in the form of a tuple
+    stak.push((start_stat, []))
+    
+    # when there are stil states that have to be explored, this while statement is to have it be continued
+    while not stak.isEmpty():
+        # this is to pop the most recently added state
+        state, path = stak.pop()
+        # if the current state is the goal, then it will return the path of the actions
+        if problem.isGoalState(state):
+            return path
+        # expand the state if it hasnt been visited before
+        if state not in visi:
+            # this is to mark the state that has been visited as visited
+            visi.add(state)
+            # gets all the successors form the state it is currently at
+            succesors = problem.getSuccessors(state)
+            # goes through all the successors
+            for succesor_state, action, step_cost in succesors:
+                #  if the successor hasnt been seen, it will be added to the list of the visited
+                if succesor_state not in visi:
+                    # creates a new path
+                    new_pat = path + [action]
+                    # pushes the successor state and its path
+                    stak.push((succesor_state, new_pat))
+    # if there is no path that has been found matching to the goal, it will return an empty list
+    return []
+    # util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""

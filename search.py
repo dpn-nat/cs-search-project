@@ -92,7 +92,39 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import Queue # import queue from util(FIFO)
+
+    intial = problem.getStartState() # go in searchagents.py to get the start state of the problem
+
+    if problem.isGoalState(intial): # if the start is at goal then 
+        return []                  # just return cause solution is found
+
+    queue = Queue()   #else make the queue so we can explore the maze and find a path
+    queue.push((intial, []))   # we start with intial node and the empty path  
+ 
+    beenThere = set()     # if the node has been visited then it will be stored in the set 
+    beenThere.add(intial)  # becasue we don't revist node we have to add the start to the visited set so it doesn't go back
+
+    while not queue.isEmpty():  # i am making while loop run until there are no nodes left in the queue to explore
+        state, path = queue.pop() # pop the state we are at(current location) and the path we took to get here 
+
+        print("going to :", state, "cost of length:", len(path)) # for debugging purposes
+        # i wanted to check if the code is acutally working as the bfs 
+
+        if problem.isGoalState(state): # now we check the node we are at if it is a goal 
+            return path # then return the path from start to goal 
+    
+
+        for nextState, actionTaken, cost in problem.getSuccessors(state):  #because we have to look at next node also cost is an passed but not used my code wouldn't work
+            
+          #  if problem.isGoalState(nextState): # from our current sate if the nextsate is goal 
+            #    return path + [actionTaken] # then return the path from intial to until current we are standing on  + the goal path we will take
+            
+            if nextState not in beenThere: # we only look at node that are not yet visted 
+                beenThere.add(nextState)  # now we are at the now so mark that node as visited(i was getting infinte loop because of this)
+                queue.push((nextState, path + [actionTaken])) # and push it in the queue with the updated path 
+
+    return []  # return the empty queue list because no answer exists
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""

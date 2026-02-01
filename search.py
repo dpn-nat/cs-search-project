@@ -208,7 +208,37 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue  # import PriorityQueue from util(FIFO)
+
+    intial = problem.getStartState() # go in searchagents.py to get the start state of the problem
+
+    if problem.isGoalState(intial): # if the start is at goal then 
+        return []                  # just return cause solution is found
+
+    PQueue = PriorityQueue()   #else make the PriorityQueue so we can explore the maze and find a path
+    PQueue.push((intial, [], 0), heuristic(intial, problem))  # intial state so no actiontaken and cost = 0 
+
+    beenThere = {}    # store best cost that we found to reach the node. this can't be a set cause we can go back and find a cheaper path. 
+
+    while not PQueue.isEmpty():  # i am making while loop run until there are no nodes left in the Priority queue to explore
+        state, path, cost_so_far = PQueue.pop() # I removed the state which has the cheapest total cost 
+
+        if state in beenThere and beenThere[state] <= cost_so_far:   # if we came to this state before with a cheaper cost then 
+            continue          # then disregard this one. 
+ 
+        beenThere[state] = cost_so_far # store the cheapest cost to reach current state
+
+        if  problem.isGoalState(state): # now we check the node we are at if it is a goal 
+            return path # then return the path from start to goal 
+    
+
+        for nextState, actionTaken, stepCost in problem.getSuccessors(state):  # we look at all reachable state from the state we are currently at in one move. 
+            newCost = cost_so_far + stepCost # this is calculating g(n) meaning total cost from intial to to this 
+            priority = newCost + heuristic(nextState, problem) # and we will also calcuate f(n) meaning actual cost so far + what's remaning 
+            
+            PQueue.push((nextState, path + [actionTaken], newCost), priority) # and push it in the priority queue with the updated A* priority 
+
+    return []  # return the empty queue list because no answer exists
 
 
 # Abbreviations

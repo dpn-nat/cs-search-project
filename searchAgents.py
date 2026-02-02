@@ -287,22 +287,21 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return(self.startingPosition, ()) # returning pacman startingpostion plus empty list because we have yet to visit any state 
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        position, visitedCorners = state  # we will give state position(x,y) and visitedcorner(tuple) that pacman has visited. 
+        # we then check if the number of visitedCorner = the number of total corners we have in our maze 
+        return len(visitedCorners) == len(self.corners)  # if so we reached the goal and return true. 
 
     def getSuccessors(self, state):
         """
@@ -323,8 +322,19 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
+            
+            position, visitedCorners = state
+            x, y = position
 
-            "*** YOUR CODE HERE ***"
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextPosition = (nextx, nexty)
+                if nextPosition in self.corners and nextPosition not in visitedCorners:
+                    nextVisitedCorners = visitedCorners + (nextPosition,)
+                else:
+                    nextVisitedCorners = visitedCorners
+                successors.append(((nextPosition, nextVisitedCorners), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -359,8 +369,43 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    position, visitedCorners = state
+
+    #Unvisited corners
+    unvisited = [c for c in corners if c not in visitedCorners]
+
+    if not unvisited:
+        return 0
+
+    def manhattan(p1, p2):
+        dx = abs(p1[0] - p2[0])
+        dy = abs(p1[1] - p2[1])
+        return dx + dy
+
+    # --- 1) Distance from Pacman to the closest corner ---
+    startDist = min(manhattan(position, c) for c in unvisited)
+
+    # --- 2) Minimum Spanning Tree (MST) over remaining corners ---
+    mstCost = 0
+    nodes = unvisited.copy()
+    connected = [nodes.pop()]  # start tree
+
+    while nodes:
+        minEdge = float('inf')
+        bestNode = None
+
+        for c in connected:
+            for n in nodes:
+                d = manhattan(c, n)
+                if d < minEdge:
+                    minEdge = d
+                    bestNode = n
+
+        mstCost += minEdge
+        connected.append(bestNode)
+        nodes.remove(bestNode)
+
+    return startDist + mstCost
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"

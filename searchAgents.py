@@ -454,19 +454,24 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
+    # this is to convert the food grid into a list of the coordinates of the food
     foodLis = foodGrid.asList()
-
+    # if there are no food that is found, then it will return the max dist as 0
     if not foodLis:
         return 0
     
+    # this is  variable to keep track of the maximum distance that is found
     maxDist = 0
     x1, y1 = position
 
+    # goes through every food position
     for (x2, y2) in foodLis:
+        # computes the manhattan distance from the current position to the food
         dist = abs(x1 - x2) + abs(y1 - y2)
+        # updates the maximum distance is the current is larger than the previous maximum
         if dist > maxDist:
             maxDist = dist
-
+    # return the distance of the maximum manhattan distance
     return maxDist
 
 class ClosestDotSearchAgent(SearchAgent):

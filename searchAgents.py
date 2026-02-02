@@ -322,22 +322,24 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-            
-            position, visitedCorners = state
-            x, y = position
 
-            dx, dy = Actions.directionToVector(action)
+            position, visitedCorners = state  # we get position and all the visited corner from the state 
+            x, y = position  # assign cordinate to position
+ 
+            dx, dy = Actions.directionToVector(action) # from code snippet which is converting action to vector  
             nextx, nexty = int(x + dx), int(y + dy)
-            if not self.walls[nextx][nexty]:
-                nextPosition = (nextx, nexty)
-                if nextPosition in self.corners and nextPosition not in visitedCorners:
-                    nextVisitedCorners = visitedCorners + (nextPosition,)
+
+            if not self.walls[nextx][nexty]:  # don't go if next position is a wall 
+                nextPosition = (nextx, nexty)  # so the new position after moving is assign to nextposition 
+                if nextPosition in self.corners and nextPosition not in visitedCorners: # we then ran a check if we ever been here before 
+                    nextVisitedCorners = visitedCorners + (nextPosition,)  # if not visited this corner before now we have so mark as visited 
                 else:
-                    nextVisitedCorners = visitedCorners
-                successors.append(((nextPosition, nextVisitedCorners), action, 1))
+                    nextVisitedCorners = visitedCorners  # don't change the mark cause is already is marked. 
+                
+                successors.append(((nextPosition, nextVisitedCorners), action, 1)) # we then update the successor, action it has taken with cost of 1. 
 
         self._expanded += 1 # DO NOT CHANGE
-        return successors
+        return successors  # at the end we return all the successors we have been to. 
 
     def getCostOfActions(self, actions):
         """
@@ -368,45 +370,30 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+ 
+    position, visitedCorners = state  # get all the position pacman has and what corners it has visited 
 
-    position, visitedCorners = state
+    unvisited = [c for c in corners if c not in visitedCorners] # make a list of not visitedcorner and assign to unvisited 
 
-    #Unvisited corners
-    unvisited = [c for c in corners if c not in visitedCorners]
+    if not unvisited:  #if let's say there are no corners that are unvisited meaning no more corners to visit
+        return 0 # then just return 0 
 
-    if not unvisited:
-        return 0
+    def manhattan(xy1, xy2):   # I am copying this function which I found in util.py to calcualte distance between two points.  
+        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]) 
 
-    def manhattan(p1, p2):
-        dx = abs(p1[0] - p2[0])
-        dy = abs(p1[1] - p2[1])
-        return dx + dy
+    totalDist = 0  # need to store unvisted corner value 
+    currentPosition = position  # where the pacman is assign that as current position
 
-    # --- 1) Distance from Pacman to the closest corner ---
-    startDist = min(manhattan(position, c) for c in unvisited)
+    while unvisited:   # Keep visiting the nearest unvisited corner(using greedy approch learned in class)
+        distances = [(manhattan(currentPosition, c), c) for c in unvisited] # calculate distance from currentposition to all unvisited corners in the maze 
+        dist, closestCorner = min(distances) # then select the minimum distance to the unvisted corner 
 
-    # --- 2) Minimum Spanning Tree (MST) over remaining corners ---
-    mstCost = 0
-    nodes = unvisited.copy()
-    connected = [nodes.pop()]  # start tree
+        totalDist += dist  # add the cost of distance to total distance 
+        currentPosition = closestCorner  # update the current position cause pacman has move to the closetcorner 
+        unvisited.remove(closestCorner)  # we mark that corner as now visited and remove it from unvisited. Also not to get stuck in a loop 
 
-    while nodes:
-        minEdge = float('inf')
-        bestNode = None
-
-        for c in connected:
-            for n in nodes:
-                d = manhattan(c, n)
-                if d < minEdge:
-                    minEdge = d
-                    bestNode = n
-
-        mstCost += minEdge
-        connected.append(bestNode)
-        nodes.remove(bestNode)
-
-    return startDist + mstCost
-
+    return totalDist # this will return herusitc estimate of cost to visit all unvisted corners. 
+    
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
     def __init__(self):
@@ -498,7 +485,7 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
+
     # this is to convert the food grid into a list of the coordinates of the food
     foodLis = foodGrid.asList()
     # if there are no food that is found, then it will return the max dist as 0
@@ -547,7 +534,7 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
+    
         # util.raiseNotDefined()
         return search.bfs(problem)
 
@@ -584,7 +571,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         x,y = state
 
-        "*** YOUR CODE HERE ***"
+       
         # if there is food at that state, then we are done
         return self.food[x][y]
         # util.raiseNotDefined()

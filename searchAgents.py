@@ -494,12 +494,12 @@ def foodHeuristic(state, problem):
     
     # this is  variable to keep track of the maximum distance that is found
     maxDist = 0
-    x1, y1 = position
 
     # goes through every food position
-    for (x2, y2) in foodLis:
+    for foo in foodLis:
         # computes the manhattan distance from the current position to the food
-        dist = abs(x1 - x2) + abs(y1 - y2)
+        # used the function from util.py
+        dist = util.manhattanDistance(position, foo)
         # updates the maximum distance is the current is larger than the previous maximum
         if dist > maxDist:
             maxDist = dist

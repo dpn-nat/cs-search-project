@@ -378,14 +378,14 @@ def cornersHeuristic(state, problem):
     if not unvisited:  #if let's say there are no corners that are unvisited meaning no more corners to visit
         return 0 # then just return 0 
 
-    def manhattan(xy1, xy2):   # I am copying this function which I found in util.py to calcualte distance between two points.  
-        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]) 
+     # I am copying this function which I found in util.py to calcualte distance between two points.  
+    distance = util.manhattanDistance
 
     totalDist = 0  # need to store unvisted corner value 
     currentPosition = position  # where the pacman is assign that as current position
 
     while unvisited:   # Keep visiting the nearest unvisited corner(using greedy approch learned in class)
-        distances = [(manhattan(currentPosition, c), c) for c in unvisited] # calculate distance from currentposition to all unvisited corners in the maze 
+        distances = [(distance(currentPosition, c), c) for c in unvisited] # calculate distance from currentposition to all unvisited corners in the maze 
         dist, closestCorner = min(distances) # then select the minimum distance to the unvisted corner 
 
         totalDist += dist  # add the cost of distance to total distance 
